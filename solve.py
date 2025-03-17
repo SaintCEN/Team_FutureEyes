@@ -224,6 +224,7 @@ def predict():
     y_test = np.concatenate(predictions)
     for i, j in enumerate(['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']):
         test[j] = y_test[:, i]
+    test.drop(test.columns[[1, 2]], axis=1, inplace=True)
     test.to_csv('SaintCHEN_ODIR.csv', index=False)
 
 if __name__ == '__main__':
