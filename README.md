@@ -1,5 +1,7 @@
 # 不谈用Tensorflow的！！！
 
+创建两个子文件夹
+
 datasets/all/
 
 images_dehazed_train/
