@@ -89,13 +89,16 @@ class ODIRDataset(Dataset):
         #运用去光照预处理
         left_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Left-Fundus'])
         right_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Right-Fundus'])
+        # 转为RGB
+        left_img = cv2.cvtColor(cv2.imread(left_path), cv2.COLOR_BGR2RGB)
+        right_img = cv2.cvtColor(cv2.imread(right_path), cv2.COLOR_BGR2RGB)
+        left_img = crop_image_from_gray(left_img)
+        right_img = crop_image_from_gray(right_img)
 
         if (self.is_test == True):
             left_img = dehaze_main(left_path)
             right_img = dehaze_main(right_path)
 
-        left_img = crop_image_from_gray(left_img)
-        right_img = crop_image_from_gray(right_img)
         # 转换为Tensor
         left_tensor = self.transform(left_img)
         right_tensor = self.transform(right_img)
@@ -126,7 +129,6 @@ class EfficientNet(nn.Module):
         # 拼接特征
         combined = torch.cat([feat_left, feat_right], dim=1)
         return self.fc(combined)
-
 
 # Focal Loss：FL(pt)=−α(1−pt)γ*log(pt)
 # pt是正确类别的预测概率
