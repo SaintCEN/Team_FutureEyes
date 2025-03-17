@@ -1,11 +1,10 @@
 # 不谈用Tensorflow的！！！
 -Team_FutureEyes
 
-`----datasets`
-      
-      `----all`
+----datasets\\
+      ----all
 
-`----images_dehazed_train`
+----images_dehazed_train
 
 datasets/alls存储所有数据集（包括训练集和测试集）
 
