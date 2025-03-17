@@ -54,10 +54,9 @@ def load_ben_color(image, sigmaX=10):  # sigmaX为x方向标准差
 
 # 左右眼数据集
 class ODIRDataset(Dataset):
-    def __init__(self, df, is_test, is_train=True):
+    def __init__(self, df,  is_train=True):
         self.df = df
         self.is_train = is_train
-        self.is_test = is_test
         self.labels = df[['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']].values
         # 数据增强
         self.transform = transforms.Compose([
@@ -89,18 +88,12 @@ class ODIRDataset(Dataset):
         #运用去光照预处理
         left_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Left-Fundus'])
         right_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Right-Fundus'])
-        if self.is_test == True:
-            left_path = os.path.join('dataset/all/', self.df.iloc[idx]['Left-Fundus'])
-            right_path = os.path.join('dataset/all/', self.df.iloc[idx]['Right-Fundus'])
+
         # 转为RGB
         left_img = cv2.cvtColor(cv2.imread(left_path), cv2.COLOR_BGR2RGB)
         right_img = cv2.cvtColor(cv2.imread(right_path), cv2.COLOR_BGR2RGB)
         left_img = crop_image_from_gray(left_img)
         right_img = crop_image_from_gray(right_img)
-
-        if (self.is_test == True):
-            left_img = dehaze_main(left_path)
-            right_img = dehaze_main(right_path)
 
         # 转换为Tensor
         left_tensor = self.transform(left_img)
@@ -153,8 +146,8 @@ class FocalLoss(nn.Module):
 # 训练配置
 def train_model():
     # 数据加载器
-    train_dataset = ODIRDataset(train_df, is_test=False, is_train=True)
-    val_dataset = ODIRDataset(val_df, is_test=False, is_train=False)
+    train_dataset = ODIRDataset(train_df, is_train=True)
+    val_dataset = ODIRDataset(val_df,  is_train=False)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4)
     # 模型初始化
@@ -219,7 +212,7 @@ def train_model():
 
 # 测试预测
 def predict():
-    test_dataset = ODIRDataset(test, is_test=True, is_train=False)
+    test_dataset = ODIRDataset(test, is_train=False)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -242,5 +235,5 @@ def predict():
     test.to_csv('SaintCHEN_ODIR.csv', index=False)
 
 if __name__ == '__main__':
-    train_model()
+
     predict()
