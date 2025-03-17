@@ -90,8 +90,8 @@ class ODIRDataset(Dataset):
         left_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Left-Fundus'])
         right_path = os.path.join('images_dehazed_train/', self.df.iloc[idx]['Right-Fundus'])
         if self.is_test == True:
-            left_path = os.path.join('datasets/all/', self.df.iloc[idx]['Left-Fundus'])
-            right_path = os.path.join('datasets/all/', self.df.iloc[idx]['Right-Fundus'])
+            left_path = os.path.join('dataset/all/', self.df.iloc[idx]['Left-Fundus'])
+            right_path = os.path.join('dataset/all/', self.df.iloc[idx]['Right-Fundus'])
         # 转为RGB
         left_img = cv2.cvtColor(cv2.imread(left_path), cv2.COLOR_BGR2RGB)
         right_img = cv2.cvtColor(cv2.imread(right_path), cv2.COLOR_BGR2RGB)
