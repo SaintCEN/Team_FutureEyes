@@ -6,7 +6,7 @@ datasets/all/
 
 images_dehazed_train/
 
-datasets/alls存储所有数据集（包括训练集和测试集）
+datasets/all存储所有数据集（包括训练集和测试集）
 
 运行process.py将预处理图像存储到images_dehazed_train.然后运行solve_dehazed_image
 
