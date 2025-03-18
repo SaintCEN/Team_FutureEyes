@@ -10,28 +10,26 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 import os
-import time
-from Dehaze import dehaze_main
 
 # 数据加载
 train = pd.read_excel('Training_Tag.xlsx')
 test = pd.read_csv('Saint_ODIR.csv')
 
 # 数据划分
-stratify = train['N']  # 正常样本由'N'列是否为0决定
+stratify = train['N']
 train_all, val_df = train_test_split(train, test_size=0.2, stratify=stratify, random_state=73)
-
-# 平衡训练集中的正常和异常样本
-normal_train = train_all[train_all['N'] == 0]  # 正常样本
-abnormal_train = train_all[train_all['N'] != 0]  # 异常样本
-
-# 确定最小样本量
+# 确定正常样本：N == 1，且其他所有指定列（D, G, C, A, H, M, O）都为 0
+normal_train = train_all[
+    (train_all['N'] == 1) &
+    (train_all[['D', 'G', 'C', 'A', 'H', 'M', 'O']].sum(axis=1) == 0)
+]
+# 异常样本：其他情况都算异常
+abnormal_train = train_all.drop(normal_train.index)
+# 确定最小样本量，确保平衡
 min_count = min(len(normal_train), len(abnormal_train))
-
-# 随机采样相同数量的样本
+# 采样相同数量的样本
 sampled_normal = normal_train.sample(n=min_count, random_state=73)
 sampled_abnormal = abnormal_train.sample(n=min_count, random_state=73)
-
 # 合并并打乱顺序
 train_df = pd.concat([sampled_normal, sampled_abnormal], axis=0).sample(frac=1, random_state=73)
 
