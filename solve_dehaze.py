@@ -18,8 +18,22 @@ train = pd.read_excel('Training_Tag.xlsx')
 test = pd.read_csv('Saint_ODIR.csv')
 
 # 数据划分
-train_df, val_df = train_test_split(train, test_size=0.2, random_state=73)
+stratify = train['N']  # 假设正常样本由'N'列是否为0决定
+train_all, val_df = train_test_split(train, test_size=0.2, stratify=stratify, random_state=73)
 
+# 平衡训练集中的正常和异常样本
+normal_train = train_all[train_all['N'] == 0]  # 正常样本
+abnormal_train = train_all[train_all['N'] != 0]  # 异常样本
+
+# 确定最小样本量
+min_count = min(len(normal_train), len(abnormal_train))
+
+# 随机采样相同数量的样本
+sampled_normal = normal_train.sample(n=min_count, random_state=73)
+sampled_abnormal = abnormal_train.sample(n=min_count, random_state=73)
+
+# 合并并打乱顺序
+train_df = pd.concat([sampled_normal, sampled_abnormal], axis=0).sample(frac=1, random_state=73)
 
 # 图像预处理
 # 剪切黑色部分
@@ -235,5 +249,5 @@ def predict():
     test.to_csv('SaintCHEN_ODIR.csv', index=False)
 
 if __name__ == '__main__':
-
+    train_model()
     predict()
