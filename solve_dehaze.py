@@ -34,7 +34,6 @@ sampled_abnormal = abnormal_train.sample(n=min_count, random_state=73)
 # 合并并打乱顺序
 train_df = pd.concat([sampled_normal, sampled_abnormal], axis=0).sample(frac=1, random_state=73)
 
-
 # 图像预处理
 # 剪切黑色部分
 def crop_image_from_gray(img, tol=7):
@@ -68,7 +67,7 @@ def load_ben_color(image, sigmaX=10):  # sigmaX为x方向标准差
 
 # 左右眼数据集
 class ODIRDataset(Dataset):
-    def __init__(self, df,  is_train=True):
+    def __init__(self, df, is_train=True):
         self.df = df
         self.is_train = is_train
         self.labels = df[['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']].values
@@ -124,13 +123,15 @@ class EfficientNet(nn.Module):
         self.base.classifier = nn.Identity()  # 移除最后的分类层
         # 融合网络
         self.fc = nn.Sequential(
-            nn.Linear(1536 * 2, 256),  # EfficientNetB3输出1536通道
-            nn.ReLU(),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, 8),
-            nn.Sigmoid()
-        )
+        nn.Linear(1536 * 2, 256),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.Linear(256, 128),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.Linear(128, 8),
+        nn.Sigmoid()
+    )
 
     def forward(self, x_left, x_right):
         # 提取特征
@@ -168,7 +169,7 @@ def train_model():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = EfficientNet().to(device)
     # 优化器和损失函数
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), weight_decay=1e-4)
     scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.3, patience=3, min_lr=1e-6)
     criterion = FocalLoss()
 

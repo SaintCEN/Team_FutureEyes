@@ -119,10 +119,12 @@ class EfficientNet(nn.Module):
         self.base.classifier = nn.Identity()  # 移除最后的分类层
         # 融合网络
         self.fc = nn.Sequential(
-            nn.Linear(1536 * 2, 256),  # EfficientNetB3输出1536通道
+            nn.Linear(1536 * 2, 256),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(256, 128),
             nn.ReLU(),
+            nn.Dropout(0.5),
             nn.Linear(128, 8),
             nn.Sigmoid()
         )
@@ -162,7 +164,7 @@ def train_model():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = EfficientNet().to(device)
     # 优化器和损失函数
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), weight_decay=1e-4)
     scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.3, patience=3, min_lr=1e-6)
     criterion = FocalLoss()
 
