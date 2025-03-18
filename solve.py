@@ -17,6 +17,9 @@ train = pd.read_excel('Training_Tag.xlsx')
 test = pd.read_csv('Saint_ODIR.csv')
 
 # 数据划分
+train_df, val_df = train_test_split(train, test_size=0.2,  random_state=73)
+'''
+# 数据划分
 stratify = train['N']
 train_all, val_df = train_test_split(train, test_size=0.2, stratify=stratify, random_state=73)
 # 确定正常样本：N == 1，且其他所有指定列（D, G, C, A, H, M, O）都为 0
@@ -33,6 +36,8 @@ sampled_normal = normal_train.sample(n=min_count, random_state=73)
 sampled_abnormal = abnormal_train.sample(n=min_count, random_state=73)
 # 合并并打乱顺序
 train_df = pd.concat([sampled_normal, sampled_abnormal], axis=0).sample(frac=1, random_state=73)
+
+'''
 
 # 图像预处理
 #剪切黑色部分
@@ -121,10 +126,8 @@ class EfficientNet(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(1536 * 2, 256),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Linear(128, 8),
             nn.Sigmoid()
         )
