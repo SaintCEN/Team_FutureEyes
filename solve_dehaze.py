@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import cv2
 import numpy as np
+from torchvision.models import EfficientNet_B3_Weights
 from tqdm import tqdm
 import os
 
@@ -119,7 +120,7 @@ class EfficientNet(nn.Module):
     def __init__(self):
         super().__init__()
         # 共享权重的基础网络
-        self.base = models.efficientnet_b3(pretrained=True)
+        self.base = models.efficientnet_b3(weights=EfficientNet_B3_Weights.DEFAULT)
         self.base.classifier = nn.Identity()  # 移除最后的分类层
         # 融合网络
         self.fc = nn.Sequential(
